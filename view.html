@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>View Text</title>
+</head>
+
+<body>
+    <h1>View Text</h1>
+    <div id="output"></div>
+
+    <script>
+        async function loadText() {
+            const params = new URLSearchParams(window.location.search);
+            const textID = params.get('textid');
+            if (!textID) return document.getElementById('output').innerText = 'No text ID provided.';
+
+            try {
+                const response = await fetch(`https://script.google.com/macros/s/AKfycbwCoILMAaCHIZRq9tO5Ea5z1sbSDbP4wrJ6CP3wJOaSXCOwxJ8OIbBPkbZKoP_nVP_2/exec?textid=${textID}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('output').innerHTML = `
+            <p><strong>Text ID:</strong> ${textID}</p>
+            <p><strong>Text:</strong> ${data.text}</p>
+            <p><strong>Timestamp:</strong> ${data.timestamp}</p>
+          `;
+                } else {
+                    document.getElementById('output').innerText = 'Text not found.';
+                }
+            } catch (e) {
+                console.error(e);
+                document.getElementById('output').innerText = 'Failed to load text.';
+            }
+        }
+
+        loadText();
+    </script>
+</body>
+
+</html>
