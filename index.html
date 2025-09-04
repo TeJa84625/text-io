@@ -1,46 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Host Text</title>
+  <meta charset="UTF-8">
+  <title>Host Text</title>
 </head>
-
 <body>
-    <h1>Host Your Text</h1>
-    <textarea id="textInput" rows="8" cols="50" placeholder="Enter your text here..."></textarea><br><br>
-    <button onclick="hostText()">Host</button>
+  <h1>Host Your Text</h1>
+  <textarea id="textInput" rows="8" cols="50" placeholder="Enter your text here..."></textarea><br><br>
+  <button onclick="hostText()">Host</button>
 
-    <script>
-        async function hostText() {
-            const text = document.getElementById('textInput').value;
-            if (!text) return alert('Please enter text');
+  <script>
+    const ENDPOINT = "https://script.google.com/macros/s/MjBPmcb1unHFpw3cQgMQfSZJkq2sV7_hS/exec";
 
-            const data = { text: text };
+    async function hostText() {
+      const text = document.getElementById('textInput').value.trim();
+      if (!text) {
+        alert("Please enter some text.");
+        return;
+      }
 
-            try {
-                const response = await fetch('https://script.google.com/macros/s/AKfycbwCoILMAaCHIZRq9tO5Ea5z1sbSDbP4wrJ6CP3wJOaSXCOwxJ8OIbBPkbZKoP_nVP_2/exec', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
+      try {
+        const response = await fetch(ENDPOINT, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ text })
+        });
 
-                const result = await response.json();
-                if (result.success) {
-                    const link = `view.html?textid=${result.textID}`;
-                    alert(`Text hosted! Share this link:\n\n${link}`);
-                } else {
-                    alert('Hosting failed');
-                }
-            } catch (e) {
-                console.error(e);
-                alert('Error hosting text');
-            }
+        const result = await response.json();
+        if (result.success) {
+          alert(`✅ Text hosted!\n\nShare this link:\n${result.url}`);
+        } else {
+          alert("❌ Hosting failed: " + result.message);
         }
-    </script>
+      } catch (error) {
+        console.error("Fetch error:", error);
+        alert("❌ Error hosting text");
+      }
+    }
+  </script>
 </body>
-
 </html>
