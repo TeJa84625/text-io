@@ -1,43 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>View Text</title>
+  <meta charset="UTF-8">
+  <title>View Text</title>
 </head>
-
 <body>
-    <h1>View Text</h1>
-    <div id="output"></div>
+  <h1>Shared Text</h1>
+  <div id="output">Loading...</div>
 
-    <script>
-        async function loadText() {
-            const params = new URLSearchParams(window.location.search);
-            const textID = params.get('textid');
-            if (!textID) return document.getElementById('output').innerText = 'No text ID provided.';
+  <script>
+    const ENDPOINT = "https://script.google.com/macros/s/MjBPmcb1unHFpw3cQgMQfSZJkq2sV7_hS/exec";
 
-            try {
-                const response = await fetch(`https://script.google.com/macros/s/AKfycbwCoILMAaCHIZRq9tO5Ea5z1sbSDbP4wrJ6CP3wJOaSXCOwxJ8OIbBPkbZKoP_nVP_2/exec?textid=${textID}`);
-                const data = await response.json();
+    async function loadText() {
+      const params = new URLSearchParams(window.location.search);
+      const textID = params.get("textid");
 
-                if (data.success) {
-                    document.getElementById('output').innerHTML = `
-            <p><strong>Text ID:</strong> ${textID}</p>
-            <p><strong>Text:</strong> ${data.text}</p>
-            <p><strong>Timestamp:</strong> ${data.timestamp}</p>
+      if (!textID) {
+        document.getElementById("output").innerText = "❌ No text ID provided.";
+        return;
+      }
+
+      try {
+        const response = await fetch(`${ENDPOINT}?textid=${textID}`);
+        const result = await response.json();
+
+        if (result.success) {
+          document.getElementById("output").innerHTML = `
+            <p><strong>Text ID:</strong> ${result.textID}</p>
+            <p><strong>Timestamp:</strong> ${result.timestamp}</p>
+            <p><strong>Text:</strong></p>
+            <pre>${result.text}</pre>
           `;
-                } else {
-                    document.getElementById('output').innerText = 'Text not found.';
-                }
-            } catch (e) {
-                console.error(e);
-                document.getElementById('output').innerText = 'Failed to load text.';
-            }
+        } else {
+          document.getElementById("output").innerText = "❌ Text not found.";
         }
+      } catch (error) {
+        console.error("Error loading text:", error);
+        document.getElementById("output").innerText = "❌ Failed to load text.";
+      }
+    }
 
-        loadText();
-    </script>
+    loadText();
+  </script>
 </body>
-
 </html>
